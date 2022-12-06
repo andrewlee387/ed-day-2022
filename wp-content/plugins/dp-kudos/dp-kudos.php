@@ -20,13 +20,18 @@
 class DPKudos {
     public function __construct() {
         register_deactivation_hook( __FILE__, array( $this, 'deactivate_kudos' ) );
+        add_action( 'init', array($this, 'init_kudos_cpt_and_page') );
+        add_shortcode('kudos_form', array($this, 'kudos_form_shortcode'));
+        
     }
 
     public function deactivate_kudos() {
         unregister_post_type( 'kudos_cpt' );
+        $to_delete = get_page_by_title('Kudos Board Page')->ID;
+        wp_delete_post($to_delete, true);
     }
 
-    public function init_kudos_cpt() {
+    public function init_kudos_cpt_and_page() {
         register_post_type( 'kudos_cpt',
             // CPT Options
             array(
@@ -40,8 +45,19 @@ class DPKudos {
                 'show_in_rest' => true,
             )
         );
+        if( get_page_by_title('Kudos Board Page') == NULL ) {
+
+            $kudos_page = array(
+                'post_title' => 'Kudos Board Page',
+                'post_content' => 'Update this string',
+                'post_status' => 'publish',
+                'post_type' => 'page'
+            );
+            wp_insert_post($kudos_page);
+        }
+
+
     }
-    add_action( 'init', 'init_kudos_cpt' );
 
 
     public function create_new_kudos_post($comment, $recipient) {
@@ -124,7 +140,6 @@ class DPKudos {
             }
         }
     }
-    add_shortcode('kudos_form', 'kudos_form_shortcode');
 
 }
 new DPKudos();
