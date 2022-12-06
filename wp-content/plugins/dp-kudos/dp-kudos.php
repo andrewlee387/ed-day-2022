@@ -21,7 +21,7 @@ class DPKudos {
     public function __construct() {
         register_deactivation_hook( __FILE__, array( $this, 'deactivate_kudos' ) );
         add_action( 'init', array($this, 'init_kudos_cpt_and_page') );
-        // add_shortcode('kudos_form', array($this, 'kudos_form_shortcode'));
+        add_shortcode('link_to_kudos', array($this, 'link_to_kudos_shortcode'));
         add_filter( 'wp_footer', array($this, 'kudos_form' ));
         
     }
@@ -56,8 +56,11 @@ class DPKudos {
             );
             wp_insert_post($kudos_page);
         }
+    }
 
-
+    public function link_to_kudos_shortcode() {
+        $kudos_page_id = get_page_by_title('Kudos Board Page')->ID;
+        return '<a href="'.get_page_link($kudos_page_id).'">View Kudos</a>';
     }
 
 
@@ -105,17 +108,7 @@ class DPKudos {
                     background-color: #E66500;
                 }
             </style>
-            <script>
-                window.addEventListener('load', function() {
-                    const submitted = document.getElementById('submitted');
-                    setTimeout(() => {
-                        if (submitted) {
-                            submitted.style = "display: none";
-    
-                        }
-                    }, 1000);
-                }, false);
-            </script>
+
             <form action="" method="POST">
                 <div class="kudos">
                     <textarea name="comment"></textarea>
@@ -130,6 +123,7 @@ class DPKudos {
                     
                         <button type="submit">Kudos!</button>
                     </div>
+                    <?php echo do_shortcode('[link_to_kudos]');?>
                 </div>
             </form>
         <?php
@@ -137,10 +131,7 @@ class DPKudos {
             $comment = $_POST['comment'];
             $recipient = $_POST['recipient'];
             if ($comment != null && $recipient != -1) {
-                $this->create_new_kudos_post($comment, $recipient);
-                echo '<div id="submitted">You Rock!</div>';
-            } else {
-                // echo 'try again';
+                $this->create_new_kudos_post($comment, $recipient); 
             }
         }
     }
