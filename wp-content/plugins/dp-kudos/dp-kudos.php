@@ -21,7 +21,8 @@ class DPKudos {
     public function __construct() {
         register_deactivation_hook( __FILE__, array( $this, 'deactivate_kudos' ) );
         add_action( 'init', array($this, 'init_kudos_cpt_and_page') );
-        add_shortcode('kudos_form', array($this, 'kudos_form_shortcode'));
+        // add_shortcode('kudos_form', array($this, 'kudos_form_shortcode'));
+        add_filter( 'wp_footer', array($this, 'kudos_form' ));
         
     }
 
@@ -73,10 +74,13 @@ class DPKudos {
         );
     }
 
-    public function kudos_form_shortcode($args = []) {
+    public function kudos_form($args = []) {
         ?>
             <style>
                 .kudos {
+                    position: fixed;
+                    bottom: 100px;
+                    right: 0;
                     display: flex;
                     flex-direction: column;
                     max-width: 190px;
@@ -133,7 +137,7 @@ class DPKudos {
             $comment = $_POST['comment'];
             $recipient = $_POST['recipient'];
             if ($comment != null && $recipient != -1) {
-                make_kudos_post($comment, $recipient);
+                $this->create_new_kudos_post($comment, $recipient);
                 echo '<div id="submitted">You Rock!</div>';
             } else {
                 // echo 'try again';
